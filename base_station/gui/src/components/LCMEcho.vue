@@ -69,6 +69,7 @@
           '/imu': false,
           '/kill_switch': false,
           '/microscope': false,
+          '/mosfet_cmd': false,
           '/drive_vel_cmd': false,
           '/nav_status': false,
           '/obstacle': false,
@@ -90,10 +91,15 @@
           '/sa_zero_trigger': false,
           '/sensor_switch': false,
           '/sensors': false,
+          '/servo_cmd': false,
           '/set_demand': false,
+          '/spectral_cmd': false,
+          '/spectral_data': false,
           '/target_list': false,
           '/temperature': false,
-          '/tennis_ball': false
+          '/tennis_ball': false,
+          '/thermistor_cmd': false,
+          '/thermistor_data': false,
 
         },
         subscriptions: [
@@ -137,12 +143,18 @@
           {'topic': '/sa_openloop_cmd', 'type': 'SAOpenLoopCmd'},
           {'topic': '/sa_pidconfig_cmd', 'type': 'PIDConstants'},
           {'topic': '/sa_zero_trigger', 'type': 'Signal'},
+          {'topic': '/servo_cmd', 'type': 'ServoCmd'},
+          {'topic': '/spectral_cmd', 'type': 'SpectralCmd'},
+          {'topic': '/spectral_data', 'type': 'SpectralData'},
           {'topic': '/target_list', 'type': 'TargetList'},
           {'topic': '/temperature', 'type': 'Temperature'},
           {'topic': '/tennis_ball', 'type': 'TennisBall'},
           {'topic': '/imu', 'type': 'IMU'},
           {'topic': '/gps', 'type': 'GPS'},
-          {'topic': '/microscope', 'type': 'Microscope'}
+          {'topic': '/microscope', 'type': 'Microscope'},
+          {'topic': '/mosfet_cmd', 'type': 'MosfetCmd'},
+          {'topic': '/thermistor_cmd', 'type': 'ThermistorCmd'},
+          {'topic': '/thermistor_data', 'type': 'ThermistorData'},
         ]
       }
     },
