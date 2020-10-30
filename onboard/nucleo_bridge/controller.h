@@ -7,7 +7,8 @@
 #include <mutex>
 #include <limits>
 #include "hardware.h"
-#include "backend.h"
+#include "I2C.h"
+#include "ControllerMap.h"
 
 #define OFF 0x00, 0, 0
 #define ON 0x0F, 0, 0
@@ -24,7 +25,12 @@
 
 #define POINTER reinterpret_cast<uint8_t *>
 
+<<<<<<< HEAD
 class Controller {
+=======
+class Controller
+{
+>>>>>>> 54c326d75c6f032b1ec5e8ccc72099e017af7d54
 public:
     float startAngle = 0.0;
     float torqueScale = 1.0;
@@ -33,6 +39,7 @@ public:
     float currentAngle = 0.0;
     float kP, kI, kD = 0.0;
 
+<<<<<<< HEAD
     BackEnd *backEnd;
     std::string name;
 
@@ -174,6 +181,39 @@ public:
         catch (IOFailure &e) { printf("angle failed on %x\n", address); }
     }
 
+=======
+    std::string name;
+
+    void recordAngle(int32_t angle);
+
+private:
+    Hardware hardware;
+
+    //Wrapper for backend->i2c_transact, autofilling the i2c address of the Controller
+    void transact(uint8_t cmd, uint8_t writeNum, uint8_t readNum, uint8_t *writeBuf, uint8_t *readBuf);
+
+    //If this Controller is not live, make it live by configuring the real controller
+    void make_live();
+
+public:
+    //Initialize the Controller. Need to know which type of hardware to use
+    Controller(std::string name, std::string type);
+
+    //Handles an open loop command with input [-1.0, 1.0], scaled to PWM limits
+    void open_loop(float input);
+    
+    //Sends a closed loop command with target angle in radians and optional precalculated torque in Nm
+    void closed_loop(float torque, float angle);
+
+    //Sends a config command with PID inputs
+    void config(float KP, float KI, float KD);
+
+    //Sends a zero command
+    void zero();
+
+    //Sends a get angle command
+    void angle();
+>>>>>>> 54c326d75c6f032b1ec5e8ccc72099e017af7d54
 };
 
 #endif
