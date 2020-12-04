@@ -151,9 +151,15 @@ pair<Tag, Tag> TagDetector::findARTags(Mat &src, Mat &depth_src, Mat &rgb) {  //
     /*------------------------------------CONTOURING-----------------------------------------------------*/
     /*----------------------------------DEPTH FILTERING--------------------------------------------------*/
     Mat filteredDepth(rgb.rows,rgb.cols, CV_8UC3, Scalar(255,255,255));
-    for(int i = 0; i < depth_src.rows; ++i){
-        for(int j = 0; j < depth_src.cols; ++j){
-            if(depth_src.at<float>(i,j) < 7000){
+    Mat kernel(3, 3, CV_8UC1, Scalar(1/9));
+    Mat depthData(depth_src.rows,depth_src.cols, CV_8UC1, Scalar(255,255,255));
+    // Invert depth data
+    cv::filter2D(depth_src, depthData, -1, kernel);
+
+
+    for(int i = 0; i < depthData.rows; ++i){
+        for(int j = 0; j < depthData.cols; ++j){
+            if(depthData.at<float>(i,j) < 7000){
                 filteredDepth.at<cv::Vec3b>(i,j)[0] = rgb.at<cv::Vec3b>(i,j)[0];
                 filteredDepth.at<cv::Vec3b>(i,j)[1] = rgb.at<cv::Vec3b>(i,j)[1];
                 filteredDepth.at<cv::Vec3b>(i,j)[2] = rgb.at<cv::Vec3b>(i,j)[2];
@@ -161,6 +167,7 @@ pair<Tag, Tag> TagDetector::findARTags(Mat &src, Mat &depth_src, Mat &rgb) {  //
                 
         }
     }
+
     /*----------------------------------DEPTH FILTERING--------------------------------------------------*/
     /*------------------------------------REJECTS-----------------------------------------------------*/
     std::vector<std::vector<cv::Point2f> > rejected;
@@ -206,8 +213,8 @@ cv::aruco::drawDetectedMarkers(rgb, corners, ids);
 #endif
 #if PERCEPTION_DEBUG
     // Draw detected tags
-    cv::aruco::drawDetectedMarkers(rgb, corners, ids);
-    cv::imshow("AR Tags", rgb);
+    cv::aruco::drawDetectedMarkers(filteredDepth, corners, ids);
+    cv::imshow("AR Tags", filteredDepth);
 
     // on click debugging for color
     DEPTH = depth_src;
