@@ -153,9 +153,26 @@ pair<Tag, Tag> TagDetector::findARTags(Mat &src, Mat &depth_src, Mat &rgb) {  //
     Mat filteredDepth(rgb.rows,rgb.cols, CV_8UC3, Scalar(255,255,255));
     Mat kernel(3, 3, CV_8UC1, Scalar(1/9));
     Mat depthData(depth_src.rows,depth_src.cols, CV_8UC1, Scalar(255,255,255));
+    // Mat depthDataInvert(depth_src.rows,depth_src.cols, CV_8UC1, Scalar(255,255,255));
     // Invert depth data
-    cv::filter2D(depth_src, depthData, -1, kernel);
-
+    // for(int i = 0; i < depth_src.rows; ++i){
+    //     for(int j = 0; j < depth_src.cols; ++j){
+    //         if(depth_src.at<float>(i,j) != 0 && depth_src.at<float>(i,j) == depth_src.at<float>(i,j)) {
+    //             cout << depth_src.at<float>(i,j) << endl;
+    //             depthDataInvert.at<float>(i,j) = 1 / depth_src.at<float>(i,j);
+    //             // cout << depthDataInvert.at<float>(i,j) << endl;
+    //             // depthData.at<float>(i,j) = depthData.at<float>(i,j) * 10000;
+    //         }
+    //     }
+    // } 
+    // cout << "Do you work?";
+    cv::medianBlur(depth_src, depthData, 7);
+    // // Re-invert depth data
+    // for(int i = 0; i < depthData.rows; ++i){
+    //     for(int j = 0; j < depthData.cols; ++j){
+    //         depthData.at<float>(i,j) = 1 / depthData.at<float>(i,j);
+    //     }
+    // } 
 
     for(int i = 0; i < depthData.rows; ++i){
         for(int j = 0; j < depthData.cols; ++j){
