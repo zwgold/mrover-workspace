@@ -44,12 +44,10 @@ int main() {
   #if OBSTACLE_DETECTION
 
   PCL pointcloud;
-
-  #if PERCEPTION_DEBUG
-    /* --- Create PCL Visualizer --- */
-    shared_ptr<pcl::visualization::PCLVisualizer> viewer = pointcloud.createRGBVisualizer(); //This is a smart pointer so no need to worry ab deleteing it
-    shared_ptr<pcl::visualization::PCLVisualizer> viewer_original = pointcloud.createRGBVisualizer();
-  #endif
+  enum viewerType {
+    newView, //set to 0 -or false- to be passed into updateViewer later
+    originalView //set to 1 -or true- to be passed into updateViewer later
+  };
 
   /* --- Outlier Detection --- */
   int numChecks = 3;
@@ -94,7 +92,9 @@ int main() {
     #if WRITE_CURR_FRAME_TO_DISK && AR_DETECTION && OBSTACLE_DETECTION
       if (iterations % FRAME_WRITE_INTERVAL == 0) {
         Mat rgb_copy = src.clone(), depth_copy = depth_img.clone();
-        cerr << "Copied correctly" << endl;
+        #if PERCEPTION_DEBUG
+          cout << "Copied correctly" << endl;
+        #endif
         cam.write_curr_frame_to_disk(rgb_copy, depth_copy, pointcloud.pt_cloud_ptr, iterations);
       }
     #endif
@@ -121,14 +121,13 @@ int main() {
     #if OBSTACLE_DETECTION && !WRITE_CURR_FRAME_TO_DISK
     
     #if PERCEPTION_DEBUG
-    //Update Original 3D Viewer
-    viewer_original->updatePointCloud(pointcloud.pt_cloud_ptr);
-    viewer_original->spinOnce(10);
-    cerr<<"Original W: " <<pointcloud.pt_cloud_ptr->width<<" Original H: "<<pointcloud.pt_cloud_ptr->height<<endl;
+      //Update Original 3D Viewer
+      pointcloud.updateViewer(originalView);
+      cout<<"Original W: " <<pointcloud.pt_cloud_ptr->width<<" Original H: "<<pointcloud.pt_cloud_ptr->height<<endl;
     #endif
 
     //Run Obstacle Detection
-    pointcloud.pcl_obstacle_detection(viewer);  
+    pointcloud.pcl_obstacle_detection();  
     obstacle_return obstacle_detection (pointcloud.bearing, pointcloud.distance);
 
     //Outlier Detection Processing
@@ -147,14 +146,18 @@ int main() {
      //Update LCM 
     obstacleMessage.bearing = lastObstacle.bearing; //update LCM bearing field
     obstacleMessage.distance = lastObstacle.distance; //update LCM distance field
-    cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Path Bearing Sent: " << obstacleMessage.bearing << "\n";
-    cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Distance Sent: " << obstacleMessage.distance << "\n";
-
+    
+    #if PERCEPTION_DEBUG
+      cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Path Bearing Sent: " << obstacleMessage.bearing << "\n";
+      cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Distance Sent: " << obstacleMessage.distance << "\n";
+    #endif
+    
     #if PERCEPTION_DEBUG
       //Update Processed 3D Viewer
-      viewer->updatePointCloud(pointcloud.pt_cloud_ptr);
-      viewer->spinOnce(20);
-      cerr<<"Downsampled W: " <<pointcloud.pt_cloud_ptr->width<<" Downsampled H: "<<pointcloud.pt_cloud_ptr->height<<endl;
+      pointcloud.updateViewer(newView);
+      #if PERCEPTION_DEBUG
+        cout<<"Downsampled W: " <<pointcloud.pt_cloud_ptr->width<<" Downsampled H: "<<pointcloud.pt_cloud_ptr->height<<endl;
+      #endif
     #endif
     
     #endif
@@ -173,7 +176,7 @@ int main() {
 
 /* --- Wrap Things Up --- */
   #if OBSTACLE_DETECTION && PERCEPTION_DEBUG
-    viewer->close();
+    pointcloud.~PCL();
   #endif
   
   #if AR_RECORD

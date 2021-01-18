@@ -60,8 +60,12 @@ Camera::Impl::Impl() {
   this->zed_.setCameraSettings(sl::VIDEO_SETTINGS::BRIGHTNESS, 1);
 
 	this->runtime_params_.confidence_threshold = THRESHOLD_CONFIDENCE;
-	std::cout<<"ZED init success\n";
-	this->runtime_params_.sensing_mode = sl::SENSING_MODE::STANDARD;
+	
+  #if PERCEPTION_DEBUG
+    std::cout<<"ZED init success\n";
+  #endif
+
+  this->runtime_params_.sensing_mode = sl::SENSING_MODE::STANDARD;
 
 	this->image_size_ = this->zed_.getCameraInformation().camera_resolution;
 	this->image_zed_.alloc(this->image_size_.width, this->image_size_.height,
@@ -201,8 +205,8 @@ Camera::Impl::Impl() {
   #if OBSTACLE_DETECTION
   pcd_path = path + "/pcl";
   pcd_dir = opendir(pcd_path.c_str() );
-  if (NULL==pcd_dir) {
-    std::cerr<<"Input folder not exist\n";    
+  if(NULL==pcd_dir) {
+    std::cout<<"Input folder not exist\n";   
     return;
   }
   #endif
@@ -214,12 +218,16 @@ Camera::Impl::Impl() {
   #if AR_DETECTION
   
   std::unordered_set<std::string> img_tails({".exr", ".jpg"}); // for rgb
-  std::cout<<"Read image names\n";
+  #if PERCEPTION_DEBUG
+    std::cout<<"Read image names\n";
+  #endif
   do {
     errno = 0;
     if ((dp = readdir(rgb_dir)) != NULL) {
       std::string file_name(dp->d_name);
-      std::cout<<"file_name is "<<file_name<<std::endl;
+      #if PERCEPTION_DEBUG
+        std::cout<<"file_name is "<<file_name<<std::endl;
+      #endif
       if (file_name.size() < 5) continue; // the lengh of the tail str is at least 4
       std::string tail = file_name.substr(file_name.size()-4, 4);
       std::string head = file_name.substr(0, file_name.size()-4);
@@ -229,7 +237,9 @@ Camera::Impl::Impl() {
     }
   } while  (dp != NULL);
   std::sort(img_names.begin(), img_names.end());
-  std::cout<<"Read image names complete\n";
+  #if PERCEPTION_DEBUG
+    std::cout<<"Read image names complete\n";
+  #endif
   idx_curr_img = 0;
 
 #endif
@@ -237,14 +247,18 @@ Camera::Impl::Impl() {
 #if OBSTACLE_DETECTION
  dp = NULL;
 
- std::cout<<"Read PCL image names\n";
+#if PERCEPTION_DEBUG
+  std::cout<<"Read PCL image names\n";
+#endif
   
   do{
     
     if ((dp = readdir(pcd_dir)) != NULL) {
       
       std::string file_name(dp->d_name);
-      std::cout<<"file_name is "<<file_name<<std::endl;
+      #if PERCEPTION_DEBUG
+        std::cout<<"file_name is "<<file_name<<std::endl;
+      #endif
       
       // the lengh of the tail str is at least 4
       if (file_name.size() < 5) continue;
@@ -256,7 +270,9 @@ Camera::Impl::Impl() {
  } while (dp != NULL);
 
   std::sort(pcd_names.begin(), pcd_names.end());
-  std::cout<<"Read .pcd image names complete\n";
+  #if PERCEPTION_DEBUG
+    std::cout<<"Read .pcd image names complete\n";
+  #endif
   idx_curr_pcd_img = 0;
 
 #endif
@@ -269,7 +285,7 @@ bool Camera::Impl::grab() {
   #if AR_DETECTION
   idx_curr_img++;
   if (idx_curr_img >= img_names.size()) {
-    std::cout<<"Ran out of images\n";
+      std::cout<<"Ran out of images\n";
     end = false;
   }
   #endif
@@ -277,7 +293,7 @@ bool Camera::Impl::grab() {
   #if OBSTACLE_DETECTION
   idx_curr_pcd_img++;
   if (idx_curr_pcd_img >= pcd_names.size()-2) {
-    std::cout<<"Ran out of images\n";
+      std::cout<<"Ran out of images\n";
     end = false;  
   }
   #endif
@@ -290,11 +306,13 @@ bool Camera::Impl::grab() {
 #if AR_DETECTION
 cv::Mat Camera::Impl::image() {
   std::string full_path = rgb_path + std::string("/") + (img_names[idx_curr_img]);
-cerr << img_names[idx_curr_img] << "\n";
-cerr << full_path << "\n";
+#if PERCEPTION_DEBUG
+  cout << img_names[idx_curr_img] << "\n";
+  cout << full_path << "\n";
+#endif
   cv::Mat img = cv::imread(full_path.c_str(), CV_LOAD_IMAGE_COLOR);
   if (!img.data){
-    std::cerr<<"Load image "<<full_path<< " error\n";
+      std::cout<<"Load image "<<full_path<< " error\n";
   }
   return img;
 }
@@ -303,10 +321,12 @@ cv::Mat Camera::Impl::depth() {
   std::string rgb_name = img_names[idx_curr_img];
   std::string full_path = depth_path + std::string("/") +
                           rgb_name.substr(0, rgb_name.size()-4) + std::string(".exr");
-  std::cout<<full_path<<std::endl;
+  #if PERCEPTION_DEBUG
+    std::cout<<full_path<<std::endl;
+  #endif
   cv::Mat img = cv::imread(full_path.c_str(), cv::IMREAD_ANYCOLOR | cv::IMREAD_ANYDEPTH);
   if (!img.data){
-    std::cerr<<"Load image "<<full_path<< " error\n";
+      std::cout<<"Load image "<<full_path<< " error\n";
   }
   return img;
 }
@@ -333,7 +353,7 @@ void Camera::record_ar_init() {
 
   if(vidWrite.isOpened() == false)
   {
-	  cerr << "ar record didn't open\n";
+	    cout << "ar record didn't open\n";
 	  exit(1);
   }
 }
@@ -415,9 +435,13 @@ void Camera::disk_record_init() {
 
 //Writes point cloud data to data folder specified in build tag 
 void pcl_write(const cv::String &filename, pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point_cloud){
-  std::cout << "name of path is: " << filename << endl;
+  #if PERCEPTION_DEBUG
+    std::cout << "name of path is: " << filename << endl;
+  #endif
   try{ pcl::io::savePCDFileASCII (filename, *p_pcl_point_cloud); }
-  catch (pcl::IOException &e){cerr << e.what();}
+  catch (pcl::IOException &e){
+      cout << e.what();
+    }
 }
 
 void Camera::write_curr_frame_to_disk(cv::Mat rgb, cv::Mat depth, pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point_cloud, int counter){
