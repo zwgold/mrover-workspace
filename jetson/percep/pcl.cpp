@@ -220,18 +220,9 @@ void PCL::FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,
             }
         }
         
-    #if PERCEPTION_DEBUG
-        for(auto interest_point : *curr_cluster)
-        {
-            pt_cloud_ptr->points[interest_point].r = 255;
-            pt_cloud_ptr->points[interest_point].g = 255;
-            pt_cloud_ptr->points[interest_point].b = 255;
-        }
-    #endif
-    }
-
         #if PERCEPTION_DEBUG
-            for(auto interest_point : *curr_cluster) {
+            for(auto interest_point : *curr_cluster)
+            {
                 pt_cloud_ptr->points[interest_point].r = 255;
                 pt_cloud_ptr->points[interest_point].g = 255;
                 pt_cloud_ptr->points[interest_point].b = 255;
@@ -299,7 +290,7 @@ double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points) 
         vector<int> centerObstacles = {obstacles.at(0), obstacles.at(1)};
 
         //Find Clear left path
-        double leftAngle = getAngleOffCenter(10, 0, interest_points, viewer, obstacles);
+        double leftAngle = getAngleOffCenter(10, 0, interest_points, obstacles);
         leftDistance = distance; 
 
         //Reset global variables
@@ -308,7 +299,7 @@ double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points) 
         obstacles.at(1) = centerObstacles.at(1);
 
         //Find clear right path
-        double rightAngle = getAngleOffCenter(10, 1, interest_points, viewer, obstacles);
+        double rightAngle = getAngleOffCenter(10, 1, interest_points, obstacles);
         rightDistance = distance;
 
         //return smallest distance of an obstacle from all the paths
