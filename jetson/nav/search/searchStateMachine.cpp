@@ -223,7 +223,7 @@ NavState SearchStateMachine::executeTurnToTarget()
     {
         return NavState::DriveToTarget;
     }
-    updateTargetDetectionElements( mRover->roverStatus().leftTsarget().bearing,
+    updateTargetDetectionElements( mRover->roverStatus().leftTarget().bearing,
                                        mRover->roverStatus().odometry().bearing_deg );
     return NavState::TurnToTarget;
 } // executeTurnToTarget()
