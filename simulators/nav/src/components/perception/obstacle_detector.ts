@@ -187,37 +187,14 @@ export default class ObstacleDetector {
       openInterval = intervalHeap.getNextOpenInterval();
     }
 
-    /* Step 6: If no intervals work, pick left or right edge of field of view */
-    let angle!:number;
-
-    /* If left side has more open, go left of fov */
-    if (intervalHeap.minOccupied > 0) {
-      angle = intervalHeap.minOccupied - (minIntervalSize / 2);
-    }
-
-    /* If right side has more open, go right of fov */
-    else if (intervalHeap.maxOccupied < 0) {
-      angle = intervalHeap.maxOccupied + (minIntervalSize / 2);
-    }
-
-    /* If right side has more open, go right of fov */
-    else if (Math.abs(intervalHeap.minOccupied) > intervalHeap.maxOccupied) {
-      angle = intervalHeap.maxOccupied + (minIntervalSize / 2);
-    }
-
-    /* If left side has more open, go left of fov */
-    else if (Math.abs(intervalHeap.minOccupied) < intervalHeap.maxOccupied) {
-      angle = intervalHeap.minOccupied - (minIntervalSize / 2);
-    }
-
-    /* If both sides equally occupied, randomly go right of fov */
-    else {
-      angle = intervalHeap.maxOccupied + (minIntervalSize / 2);
-    }
+    /* Step 6: If no intervals work, get left and right edges of field of view */
+    const angle:number = intervalHeap.minOccupied - (minIntervalSize / 2);
+    const rightAngle:number = intervalHeap.maxOccupied + (minIntervalSize / 2);
 
     return {
       distance: this.obsDist,
-      bearing: angle
+      bearing: angle,
+      rightBearing: rightAngle
     };
   } /* computeObsMsg() */
 
@@ -290,7 +267,8 @@ export default class ObstacleDetector {
 
     return {
       distance: this.obsDist, /* Will be -1 if okay to go straight ahead (i.e. bearing = 0) */
-      bearing: calcRelativeBearing(this.zedOdom.bearing_deg, angle)
+      bearing: calcRelativeBearing(this.zedOdom.bearing_deg, angle),
+      rightBearing: calcRelativeBearing(this.zedOdom.bearing_deg, -angle)
     };
   } /* isPathClear() */
 

@@ -133,6 +133,7 @@ export interface Obstacle {
 export interface ObstacleMessage {
   distance:number; /* meters from rover */
   bearing:number; /* degrees from rover */
+  rightBearing:number; /* degrees from rover on right side */
 }
 
 

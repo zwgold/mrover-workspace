@@ -489,7 +489,10 @@ string StateMachine::stringifyNavState() const
 // Returns the optimal angle to avoid the detected obstacle.
 double StateMachine::getOptimalAvoidanceAngle() const
 {
-    return mRover->roverStatus().obstacle().bearing;
+    double left = mRover->roverStatus().obstacle().bearing;
+    double right = mRover->roverStatus().obstacle().rightBearing;
+    double ret = (abs(left) <= abs(right)) ? left : right;
+    return ret;
 } // optimalAvoidanceAngle()
 
 // Returns the optimal angle to avoid the detected obstacle.

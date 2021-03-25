@@ -39,7 +39,9 @@ NavState SimpleAvoidance::executeTurnAroundObs( Rover* rover,
         return NavState::SearchDriveAroundObs;
     }
 
-    double obstacleBearing = rover->roverStatus().obstacle().bearing;
+    double left = rover->roverStatus().obstacle().bearing;
+    double right = rover->roverStatus().obstacle().rightBearing;
+    double obstacleBearing = (abs(left) <= abs(right)) ? left : right;
     if( mJustDetectedObstacle &&
         ( obstacleBearing < 0 ? mLastObstacleAngle >= 0 : mLastObstacleAngle < 0 ) ) {
         obstacleBearing *= -1;
