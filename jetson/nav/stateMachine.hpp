@@ -43,9 +43,11 @@ public:
 
     void updateObstacleAngle( double bearing );
 
+    void updateObstacleAngleRight( double bearing );
+
     void updateObstacleDistance( double distance );
 
-    void updateObstacleElements( double bearing, double distance );
+    void updateObstacleElements( double bearing, double rightBearing, double distance );
 
     void updateRepeaterComplete( );
 

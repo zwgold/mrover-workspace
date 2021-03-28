@@ -25,9 +25,11 @@ public:
 
     void updateObstacleAngle( double bearing );
 
+    void updateObstacleAngleRight( double rightBearing );
+
     void updateObstacleDistance( double distance );
 
-    void updateObstacleElements( double bearing, double distance );  
+    void updateObstacleElements( double bearing, double rightBearing, double distance );  
 
     NavState run();
 
@@ -52,6 +54,9 @@ protected:
 
     // Initial angle to go around obstacle upon detection.
     double mOriginalObstacleAngle;
+
+    // Initial right angle to go around obstacle upon detection.
+    double mOriginalObstacleAngleRight;
 
     // Initial angle to go around obstacle upon detection.
     double mOriginalObstacleDistance;

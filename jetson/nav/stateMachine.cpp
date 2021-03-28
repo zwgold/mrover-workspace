@@ -79,6 +79,13 @@ void StateMachine::updateObstacleAngle( double bearing )
     mObstacleAvoidanceStateMachine->updateObstacleAngle( bearing );
 }
 
+// Allows outside objects to set the original obstacle right angle
+// This will allow the variable to be set before the rover turns
+void StateMachine::updateObstacleAngleRight( double bearing )
+{
+    mObstacleAvoidanceStateMachine->updateObstacleAngleRight( bearing );
+}
+
 // Allows outside objects to set the original obstacle angle
 // This will allow the variable to be set before the rover turns
 void StateMachine::updateObstacleDistance( double distance )
@@ -88,9 +95,10 @@ void StateMachine::updateObstacleDistance( double distance )
 
 // Allows outside objects to set the original obstacle angle
 // This will allow the variable to be set before the rover turns
-void StateMachine::updateObstacleElements( double bearing, double distance )
+void StateMachine::updateObstacleElements( double bearing, double rightBearing, double distance )
 {
     updateObstacleAngle( bearing );
+    updateObstacleAngleRight( rightBearing );
     updateObstacleDistance( distance );
 }
 
@@ -393,7 +401,8 @@ NavState StateMachine::executeDrive()
 
     if( isObstacleDetected( mRover ) && !isWaypointReachable( distance ) )
     {
-        mObstacleAvoidanceStateMachine->updateObstacleElements( getOptimalAvoidanceAngle(),
+        mObstacleAvoidanceStateMachine->updateObstacleElements( mRover->roverStatus().obstacle().bearing,
+                                                                mRover->roverStatus().obstacle().rightBearing,
                                                                 getOptimalAvoidanceDistance() );
         return NavState::TurnAroundObs;
     }
@@ -491,8 +500,7 @@ double StateMachine::getOptimalAvoidanceAngle() const
 {
     double left = mRover->roverStatus().obstacle().bearing;
     double right = mRover->roverStatus().obstacle().rightBearing;
-    double ret = (abs(left) <= abs(right)) ? left : right;
-    return ret;
+    return (abs(left) <= abs(right)) ? left : right;
 } // optimalAvoidanceAngle()
 
 // Returns the optimal angle to avoid the detected obstacle.
