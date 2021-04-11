@@ -268,7 +268,7 @@ export default class ObstacleDetector {
     return {
       distance: this.obsDist, /* Will be -1 if okay to go straight ahead (i.e. bearing = 0) */
       bearing: calcRelativeBearing(this.zedOdom.bearing_deg, angle),
-      rightBearing: calcRelativeBearing(this.zedOdom.bearing_deg, -angle)
+      rightBearing: -1 * calcRelativeBearing(this.zedOdom.bearing_deg, angle)
     };
   } /* isPathClear() */
 

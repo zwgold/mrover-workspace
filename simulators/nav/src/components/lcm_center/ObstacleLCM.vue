@@ -8,7 +8,7 @@
       <legend>Obstacle</legend>
       <p>Distance: {{ dist }} m</p>
       <p>Bearing: {{ bear }}º</p>
-      <p>Bearing: {{ bearRight }}º</p>
+      <p>Bearing Right: {{ bearRight }}º</p>
     </fieldset>
   </div>
 </template>
@@ -38,11 +38,12 @@ export default class ObstacleLCM extends Vue {
     return Number(this.obstacleMessage.distance.toFixed(2));
   }
 
-  /* bearing to turn to in the obstacle message LCM */
+  /* left bearing to turn to in the obstacle message LCM */
   private get bear():number {
     return Number(this.obstacleMessage.bearing.toFixed(2));
   }
 
+  /* right bearing to turn to in the obstacle message LCM */
   private get bearRight():number {
     return Number(this.obstacleMessage.rightBearing.toFixed(2));
   }

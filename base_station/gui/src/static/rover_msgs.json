@@ -396,6 +396,11 @@
             "double",
             "distance",
             ""
+        ],
+        [
+            "double",
+            "rightBearing",
+            ""
         ]
     ],
     "Odometry": [

@@ -29,7 +29,7 @@ NavState SimpleAvoidance::executeTurnAroundObs( Rover* rover,
     if( !isObstacleDetected( rover ) )
     {
         double distanceAroundObs = mOriginalObstacleDistance /
-                                   cos( fabs( degreeToRadian( mOriginalObstacleAngle ) ) );
+                                   cos( fabs( degreeToRadian( min( mOriginalObstacleAngle, mOriginalObstacleAngleRight ) ) ) );
         mObstacleAvoidancePoint = createAvoidancePoint( rover, distanceAroundObs );
         if( rover->roverStatus().currentState() == NavState::TurnAroundObs )
         {
@@ -41,6 +41,7 @@ NavState SimpleAvoidance::executeTurnAroundObs( Rover* rover,
 
     double left = rover->roverStatus().obstacle().bearing;
     double right = rover->roverStatus().obstacle().rightBearing;
+    std::cout << "Left: " << left << " Right: " << right << std::endl;
     double obstacleBearing = (abs(left) <= abs(right)) ? left : right;
     if( mJustDetectedObstacle &&
         ( obstacleBearing < 0 ? mLastObstacleAngle >= 0 : mLastObstacleAngle < 0 ) ) {
