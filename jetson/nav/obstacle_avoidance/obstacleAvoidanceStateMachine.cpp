@@ -59,7 +59,9 @@ NavState ObstacleAvoidanceStateMachine::run()
         case NavState::DriveAroundObs:
         case NavState::SearchDriveAroundObs:
         {
-            return executeDriveAroundObs( mRover );
+
+            return executeDriveAroundObs( mRover, mRoverConfig );
+
         }
 
         default:
