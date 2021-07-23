@@ -1,41 +1,9 @@
 #include <iostream>
 #include <lcm/lcm-cpp.hpp>
 #include "stateMachine.hpp"
-#include "behaviortree_cpp_v3/bt_factory.h"
-#include "test_nodes.h"
+
 using namespace rover_msgs;
 using namespace std;
-using namespace BT;
-
-static const char* xml_text = R"(
-
- <root main_tree_to_execute = "MainTree" >
-
-     <BehaviorTree ID="MainTree">
-        <ReactiveSequence>
-            <CheckOverallDrinkAvail/>
-            <Sequence name="not_root_sequence">
-                <Sequence name="root_sequence">
-                    <Prompt   drink_port="{drink}"/>
-                    <Fallback name="fallback">
-                        <CheckSpace drink_port="{drink}"/>
-                        <ForceFailure>
-                            <PrintOptions name="print_options"/>
-                        </ForceFailure>
-                        <ForceFailure>
-                            <Prompt drink_port="{drink}"/>
-                        </ForceFailure>
-                        <CheckSpace drink_port="{drink}"/>
-                    </Fallback>
-                    <DispenseDrink   drink_port="{drink}"/>
-                </Sequence>
-            </Sequence>
-        </ReactiveSequence>
-        
-     </BehaviorTree>
-
- </root>
- )";
 
 // This class handles all incoming LCM messages for the autonomous
 // navigation of the rover.
@@ -126,55 +94,6 @@ private:
 // Runs the autonomous navigation of the rover.
 int main()
 {
-
-
-    // We use the BehaviorTreeFactory to register our custom nodes
-    BehaviorTreeFactory factory;
-
-    /* There are two ways to register nodes:
-    *    - statically, i.e. registering all the nodes one by one.
-    *    - dynamically, loading the TreeNodes from a shared library (plugin).
-    * */
-
-    // Note: the name used to register should be the same used in the XML.
-    // Note that the same operations could be done using DummyNodes::RegisterNodes(factory)
-    std::cout << "static linking" << std::endl;
-    using namespace TestNodes;
-
-    fillDrinkTable();
-    
-
-    factory.registerSimpleCondition("CheckOverallDrinkAvail", std::bind(CheckOverallDrinkAvail));
-    factory.registerSimpleCondition("CheckMachineStatus", std::bind(CheckMachineStatus));
-    factory.registerSimpleAction("PrintOptions", std::bind(PrintOptions));
-    factory.registerNodeType<Prompt>("Prompt");
-    factory.registerNodeType<DispenseDrink>("DispenseDrink");
-    factory.registerNodeType<CheckSpace>("CheckSpace");
-    
-
-    // Trees are created at deployment-time (i.e. at run-time, but only once at the beginning).
-    // The currently supported format is XML.
-    // IMPORTANT: when the object "tree" goes out of scope, all the TreeNodes are destroyed
-    auto tree = factory.createTreeFromText(xml_text);
-
-    // To "execute" a Tree you need to "tick" it.
-    // The tick is propagated to the children based on the logic of the tree.
-    // In this case, the entire sequence is executed, because all the children
-    // of the Sequence return SUCCESS.
-    BT::NodeStatus status = BT::NodeStatus::SUCCESS;
-    while (status == BT::NodeStatus::SUCCESS){
-        //lcm processing
-        //map processing
-        status = tree.tickRoot();    
-    }
-
-
-
-
-
-
-
-
     lcm::LCM lcmObject;
     if( !lcmObject.good() )
     {
