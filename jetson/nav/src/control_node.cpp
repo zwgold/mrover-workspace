@@ -11,40 +11,60 @@
 *   WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef FALLBACKNODE_H
-#define FALLBACKNODE_H
-
 #include "behaviortree_cpp_v3/control_node.h"
 
 namespace BT
 {
-/**
- * @brief The FallbackNode is used to try different strategies,
- * until one succeeds.
- * If any child returns RUNNING, previous children will NOT be ticked again.
- *
- * - If all the children return FAILURE, this node returns FAILURE.
- *
- * - If a child returns RUNNING, this node returns RUNNING.
- *
- * - If a child returns SUCCESS, stop the loop and return SUCCESS.
- *
- */
-class FallbackNode : public ControlNode
+ControlNode::ControlNode(const std::string& name, const NodeConfiguration& config)
+  : TreeNode::TreeNode(name, config)
 {
-  public:
-    FallbackNode(const std::string& name);
-
-    virtual ~FallbackNode() override = default;
-
-    virtual void halt() override;
-
-  private:
-    size_t current_child_idx_;
-
-    virtual BT::NodeStatus tick() override;
-};
-
 }
 
-#endif
+void ControlNode::addChild(TreeNode* child)
+{
+    children_nodes_.push_back(child);
+}
+
+size_t ControlNode::childrenCount() const
+{
+    return children_nodes_.size();
+}
+
+void ControlNode::halt()
+{
+    haltChildren();
+    setStatus(NodeStatus::IDLE);
+}
+
+const std::vector<TreeNode*>& ControlNode::children() const
+{
+    return children_nodes_;
+}
+
+void ControlNode::haltChild(size_t i)
+{
+    auto child = children_nodes_[i];
+    if (child->status() == NodeStatus::RUNNING)
+    {
+        child->halt();
+    }
+    child->setStatus(NodeStatus::IDLE);
+}
+
+void ControlNode::haltChildren()
+{
+    for (size_t i = 0; i < children_nodes_.size(); i++)
+    {
+        haltChild(i);
+    }
+}
+
+void ControlNode::haltChildren(size_t first)
+{
+    for (size_t i = first; i < children_nodes_.size(); i++)
+    {
+        haltChild(i);
+    }
+}
+
+} // end namespace
